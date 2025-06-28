@@ -26,6 +26,7 @@ go.work.sum
 
 # env file
 .env
+.env.local
 
 # Editor/IDE
 .idea/
@@ -44,3 +45,7 @@ pr-analyzer
 dist/
 *.db
 *.log
+
+# Output files
+*.jsonl
+*.csv

@@ -16,7 +16,7 @@ func (c *Client) FetchFiles(ctx context.Context, prNumber int) error {
 	for {
 		files, resp, err := c.client.PullRequests.ListFiles(ctx, c.owner, c.repo, prNumber, opts)
 		if err != nil {
-			return c.handleError(err, resp)
+			return c.handleError(err, resp.Response)
 		}
 
 		for _, file := range files {

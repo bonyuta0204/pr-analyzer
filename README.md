@@ -1,16 +1,23 @@
 # PR Analyzer
 
-A CLI tool for fetching and analyzing GitHub pull request data. It caches PR data locally and exports it in various formats for analysis.
+A modern CLI tool for fetching and analyzing GitHub pull request data. It features a beautiful terminal UI with progress indicators, transparent caching, and exports data in analysis-ready formats.
 
 ## Features
 
-- Fetch pull requests, reviews, comments, and file changes from GitHub
-- Cache data locally using SQLite for fast access
-- Export data in JSONL or CSV format
-- Incremental sync to fetch only updated PRs
-- Support for GitHub Enterprise
-- Bot detection for filtering automated accounts
-- Configurable rate limiting and batch processing
+- 🚀 **Single command interface** - Just `pr-analyzer owner/repo`
+- 🎨 **Beautiful progress display** - Animated spinners, emojis, and fancy box drawing
+- 💾 **Transparent caching** - SQLite-based local cache for instant subsequent runs
+- 📊 **Multiple export formats** - JSONL for DuckDB analysis, CSV for spreadsheets
+- 🤖 **Bot detection** - Automatically identifies and flags bot accounts
+- 🔄 **Incremental updates** - Fetches only new/updated PRs after initial sync
+- 🏢 **GitHub Enterprise support** - Configure custom API endpoints
+- 🎯 **Flexible filtering** - Limit by count, date range, or specific PR numbers
+
+## Requirements
+
+- Go 1.21 or higher
+- GitHub personal access token with `repo` scope (or `public_repo` for public repositories)
+- [DuckDB](https://duckdb.org/) (optional, for data analysis)
 
 ## Installation
 
@@ -26,99 +33,99 @@ make build
 make install
 ```
 
+### GitHub Token Setup
+
+Create a personal access token at https://github.com/settings/tokens with the following scopes:
+- `repo` - Full control of private repositories (or `public_repo` for public repos only)
+- `read:org` - Read org and team membership (optional, for better user info)
+
 ## Quick Start
 
-1. **Initialize configuration with your GitHub token:**
+1. **Set up your GitHub token:**
 
 ```bash
-pr-analyzer init --token <your-github-token>
+# Create a .env file with your GitHub token
+cp .env.example .env
+# Edit .env and add your GitHub token
+
+# Or use environment variable
+export GITHUB_TOKEN=your_github_token_here
 ```
 
-2. **Fetch PR data from a repository:**
+2. **Analyze a repository:**
 
 ```bash
-# Fetch all PRs
-pr-analyzer fetch --repo owner/repo
+# Basic usage - exports recent 100 PRs to JSONL
+pr-analyzer microsoft/vscode
 
-# Fetch PRs updated since a specific date
-pr-analyzer fetch --repo owner/repo --since 2024-01-01
+# Limit to recent 50 PRs
+pr-analyzer microsoft/vscode --limit 50
+
+# Export to CSV format
+pr-analyzer facebook/react --format csv
+
+# Fetch all PRs (no limit)
+pr-analyzer kubernetes/kubernetes --all
+
+# Fetch PRs since a specific date
+pr-analyzer golang/go --since 2024-01-01
 
 # Fetch a specific PR
-pr-analyzer fetch --repo owner/repo --pr 123
+pr-analyzer torvalds/linux --pr 12345
 ```
 
-3. **Export data for analysis:**
+3. **Analyze the exported data:**
 
 ```bash
-# Export to JSONL (default)
-pr-analyzer export --repo owner/repo
+# Query with DuckDB
+duckdb -c "SELECT * FROM 'microsoft-vscode-prs.jsonl' WHERE state = 'open'"
 
-# Export to CSV
-pr-analyzer export --repo owner/repo --format csv --output ./data
-
-# Include file diffs in export
-pr-analyzer export --repo owner/repo --include-diffs
+# Or open in your favorite data analysis tool
 ```
 
-## Configuration
+## Output Examples
 
-The default configuration file is located at `~/.pr-analyzer/config.yaml`:
+### Terminal UI
 
-```yaml
-github:
-  token: ${GITHUB_TOKEN}  # Can use environment variable
-  api_url: https://api.github.com  # For GitHub Enterprise
-  
-cache:
-  location: ~/.pr-analyzer
-  max_age_days: 90
-  
-export:
-  default_format: jsonl
-  include_raw_json: false
-  
-fetch:
-  batch_size: 100
-  rate_limit_buffer: 100  # Reserve API requests
+```
+┌─ 🔍 Analyzing microsoft/vscode
+│
+├─ 📋 Checking cache...
+│  ✓ Found 145 PRs cached (last sync: 2 hours ago)
+│
+├─ 📡 Fetching from GitHub...
+│  ├─ Recent PRs................ ✓ 55 new
+│  ├─ Reviews................... ✓ 1,234 items
+│  ├─ Comments.................. ✓ 5,678 items
+│  └─ Files..................... ✓ 2,345 items
+│
+└─ ✅ Exported 200 PRs → microsoft-vscode-prs.jsonl (2.4 MB)
+
+🎉 Analysis ready! Try: duckdb -c "SELECT * FROM 'microsoft-vscode-prs.jsonl'"
 ```
 
-## Commands
+## Command Reference
 
-### `pr-analyzer init`
-Initialize the configuration and cache directory.
+```bash
+pr-analyzer <owner/repo> [flags]
+```
 
-### `pr-analyzer fetch`
-Fetch PR data from GitHub and store in local cache.
+### Flags
 
-Options:
-- `--repo owner/repo` - Repository to fetch from (required)
-- `--since YYYY-MM-DD` - Fetch PRs updated since this date
-- `--pr NUMBER` - Fetch a specific PR
-- `--full` - Perform full sync instead of incremental
-
-### `pr-analyzer export`
-Export cached PR data to files.
-
-Options:
-- `--repo owner/repo` - Repository to export (required)
-- `--format jsonl|csv` - Export format (default: jsonl)
-- `--output PATH` - Output directory (default: ./)
+- `--format string` - Export format: jsonl, csv (default "jsonl")
+- `--limit int` - Fetch recent N PRs (default 100, use --all for unlimited)
+- `--all` - Fetch all PRs (overrides --limit)
 - `--include-diffs` - Include file diffs in export
-- `--split-files` - Split output into multiple files
+- `--refetch` - Force refetch all data (ignore cache)
+- `--since string` - Fetch PRs updated since date (YYYY-MM-DD)
+- `--pr int` - Fetch specific PR number only
+- `--output string` - Custom output filename
+- `-h, --help` - Help for pr-analyzer
 
-### `pr-analyzer cache`
-Manage the local cache.
+### Environment Variables
 
-Subcommands:
-- `cache stats [--repo owner/repo]` - Show cache statistics
-- `cache clear [--repo owner/repo]` - Clear cache data
-
-### `pr-analyzer config`
-Manage configuration settings.
-
-Subcommands:
-- `config set KEY VALUE` - Set a configuration value
-- `config get KEY` - Get a configuration value
+- `GITHUB_TOKEN` - GitHub personal access token (required)
+- `GITHUB_API_URL` - GitHub Enterprise API URL (optional)
 
 ## Data Formats
 
@@ -153,21 +160,84 @@ Exports are split into multiple CSV files:
 The JSONL format is optimized for analysis with DuckDB:
 
 ```sql
--- Load data
-CREATE TABLE pr_data AS 
-SELECT * FROM read_json_auto('pr_data.jsonl');
+-- Basic queries
+SELECT COUNT(*) as total_prs FROM 'repo-prs.jsonl';
+
+SELECT state, COUNT(*) as count 
+FROM 'repo-prs.jsonl' 
+GROUP BY state;
 
 -- Find most active reviewers
 SELECT 
-    json_extract_string(reviewer, '$.login') as reviewer,
+    reviewer.login as reviewer,
     COUNT(*) as review_count
-FROM (
-    SELECT unnest(json_extract(data, '$.reviews')) as reviewer
-    FROM pr_data
-)
-GROUP BY reviewer
-ORDER BY review_count DESC;
+FROM 'repo-prs.jsonl' t,
+    UNNEST(t.reviews) as review,
+    LATERAL (SELECT review.reviewer) as reviewer
+GROUP BY reviewer.login
+ORDER BY review_count DESC
+LIMIT 10;
+
+-- Analyze PR merge times
+SELECT 
+    author.login as author,
+    AVG(EPOCH(merged_at) - EPOCH(created_at))/86400 as avg_days_to_merge,
+    COUNT(*) as merged_prs
+FROM 'repo-prs.jsonl'
+WHERE merged_at IS NOT NULL
+GROUP BY author.login
+HAVING COUNT(*) > 5
+ORDER BY avg_days_to_merge;
+
+-- Find files with most comments
+SELECT 
+    comment.file_path,
+    COUNT(*) as comment_count,
+    COUNT(DISTINCT number) as pr_count
+FROM 'repo-prs.jsonl' t,
+    UNNEST(t.comments) as comment
+WHERE comment.file_path IS NOT NULL
+GROUP BY comment.file_path
+ORDER BY comment_count DESC
+LIMIT 20;
 ```
+
+## Output Filenames
+
+The tool generates smart filenames based on your query:
+
+- `owner-repo-prs.jsonl` - Default output
+- `owner-repo-prs-recent-50.jsonl` - When using --limit
+- `owner-repo-pr-123.jsonl` - When fetching specific PR
+- `owner-repo-prs-2024-01.jsonl` - When using --since
+
+## Performance
+
+- **Caching**: After initial fetch, subsequent runs are instant (reads from local cache)
+- **Incremental updates**: Only fetches new/updated PRs
+- **Rate limiting**: Respects GitHub API rate limits automatically
+- **Typical performance**:
+  - Small repos (< 1000 PRs): 1-2 minutes initial fetch
+  - Medium repos (1000-5000 PRs): 5-10 minutes initial fetch
+  - Large repos (> 5000 PRs): Use --limit or --since for faster results
+
+## Troubleshooting
+
+### "GITHUB_TOKEN environment variable is required"
+Create a `.env` file with your token or export it:
+```bash
+export GITHUB_TOKEN=your_token_here
+```
+
+### "repository not found"
+- Check the repository name format: `owner/repo`
+- Ensure your token has access to the repository
+- For private repos, ensure `repo` scope is enabled
+
+### Timeout issues
+- Use `--limit` to fetch fewer PRs
+- Use `--since` to fetch only recent PRs
+- Check your internet connection
 
 ## Development
 
@@ -184,6 +254,10 @@ make lint
 # Build for development
 make dev
 ```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 

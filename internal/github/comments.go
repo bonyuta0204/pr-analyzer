@@ -32,12 +32,12 @@ func (c *Client) fetchIssueComments(ctx context.Context, prNumber int) error {
 	for {
 		comments, resp, err := c.client.Issues.ListComments(ctx, c.owner, c.repo, prNumber, opts)
 		if err != nil {
-			return c.handleError(err, resp)
+			return c.handleError(err, resp.Response)
 		}
 
 		for _, comment := range comments {
-			c := c.convertIssueComment(comment, prNumber)
-			if err := c.cache.SaveComment(c); err != nil {
+			convertedComment := c.convertIssueComment(comment, prNumber)
+			if err := c.cache.SaveComment(convertedComment); err != nil {
 				return fmt.Errorf("saving comment %d: %w", comment.GetID(), err)
 			}
 		}
@@ -61,12 +61,12 @@ func (c *Client) fetchReviewComments(ctx context.Context, prNumber int) error {
 	for {
 		comments, resp, err := c.client.PullRequests.ListComments(ctx, c.owner, c.repo, prNumber, opts)
 		if err != nil {
-			return c.handleError(err, resp)
+			return c.handleError(err, resp.Response)
 		}
 
 		for _, comment := range comments {
-			c := c.convertReviewComment(comment, prNumber)
-			if err := c.cache.SaveComment(c); err != nil {
+			convertedComment := c.convertReviewComment(comment, prNumber)
+			if err := c.cache.SaveComment(convertedComment); err != nil {
 				return fmt.Errorf("saving review comment %d: %w", comment.GetID(), err)
 			}
 		}
@@ -85,8 +85,8 @@ func (c *Client) convertIssueComment(comment *github.IssueComment, prNumber int)
 		ID:         comment.GetID(),
 		PullNumber: prNumber,
 		Body:       comment.GetBody(),
-		CreatedAt:  comment.GetCreatedAt(),
-		UpdatedAt:  comment.GetUpdatedAt(),
+		CreatedAt:  comment.GetCreatedAt().Time,
+		UpdatedAt:  comment.GetUpdatedAt().Time,
 		Reactions:  c.convertReactions(comment.Reactions),
 	}
 
@@ -107,8 +107,8 @@ func (c *Client) convertReviewComment(comment *github.PullRequestComment, prNumb
 		Body:       comment.GetBody(),
 		Path:       comment.GetPath(),
 		DiffHunk:   comment.GetDiffHunk(),
-		CreatedAt:  comment.GetCreatedAt(),
-		UpdatedAt:  comment.GetUpdatedAt(),
+		CreatedAt:  comment.GetCreatedAt().Time,
+		UpdatedAt:  comment.GetUpdatedAt().Time,
 		Reactions:  c.convertReactions(comment.Reactions),
 	}
 
@@ -120,8 +120,8 @@ func (c *Client) convertReviewComment(comment *github.PullRequestComment, prNumb
 		result.Side = *comment.Side
 	}
 
-	if comment.InReplyToID != nil {
-		result.InReplyToID = comment.InReplyToID
+	if comment.InReplyTo != nil {
+		result.InReplyToID = comment.InReplyTo
 	}
 
 	if comment.PullRequestReviewID != nil {
