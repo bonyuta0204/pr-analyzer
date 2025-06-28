@@ -41,7 +41,7 @@ func (e *CSVExporter) Export(prs []*models.PullRequest) error {
 		"additions", "deletions", "changed_files", "comments", "review_comments", "reviews",
 		"review_states", "comment_authors", "file_paths",
 	}
-	
+
 	if e.includeDiffs {
 		header = append(header, "diff_summary")
 	}
@@ -100,11 +100,11 @@ func (e *CSVExporter) escapeCsvValue(value string) string {
 	cleaned := strings.ReplaceAll(value, "\n", " ")
 	cleaned = strings.ReplaceAll(cleaned, "\t", " ")
 	cleaned = strings.ReplaceAll(cleaned, "\r", " ")
-	
+
 	if len(cleaned) > 200 {
 		cleaned = cleaned[:200] + "..."
 	}
-	
+
 	return cleaned
 }
 
@@ -112,7 +112,7 @@ func (e *CSVExporter) serializeUsers(users []models.User) string {
 	if len(users) == 0 {
 		return ""
 	}
-	
+
 	var usernames []string
 	for _, user := range users {
 		usernames = append(usernames, user.Login)
@@ -124,7 +124,7 @@ func (e *CSVExporter) serializeLabels(labels []models.Label) string {
 	if len(labels) == 0 {
 		return ""
 	}
-	
+
 	var labelNames []string
 	for _, label := range labels {
 		labelNames = append(labelNames, label.Name)
@@ -143,12 +143,12 @@ func (e *CSVExporter) getReviewStates(reviews []models.Review) string {
 	if len(reviews) == 0 {
 		return ""
 	}
-	
+
 	stateCount := make(map[string]int)
 	for _, review := range reviews {
 		stateCount[review.State]++
 	}
-	
+
 	var states []string
 	for state, count := range stateCount {
 		states = append(states, fmt.Sprintf("%s:%d", state, count))
@@ -160,12 +160,12 @@ func (e *CSVExporter) getCommentAuthors(comments []models.Comment) string {
 	if len(comments) == 0 {
 		return ""
 	}
-	
+
 	authorSet := make(map[string]bool)
 	for _, comment := range comments {
 		authorSet[comment.Author.Login] = true
 	}
-	
+
 	var authors []string
 	for author := range authorSet {
 		authors = append(authors, author)
@@ -177,7 +177,7 @@ func (e *CSVExporter) getFilePaths(files []models.File) string {
 	if len(files) == 0 {
 		return ""
 	}
-	
+
 	var paths []string
 	for _, file := range files {
 		paths = append(paths, file.Filename)
@@ -189,7 +189,7 @@ func (e *CSVExporter) getDiffSummary(files []models.File) string {
 	if len(files) == 0 {
 		return ""
 	}
-	
+
 	var summary []string
 	for _, file := range files {
 		if file.Patch != "" {

@@ -17,22 +17,22 @@ type Label struct {
 }
 
 type PullRequest struct {
-	ID                 int64             `json:"id"`
-	Number             int               `json:"number"`
-	Title              string            `json:"title"`
-	State              string            `json:"state"`
-	Author             User              `json:"author"`
-	Assignees          []User            `json:"assignees"`
-	RequestedReviewers []User            `json:"requested_reviewers"`
-	Labels             []Label           `json:"labels"`
-	CreatedAt          time.Time         `json:"created_at"`
-	UpdatedAt          time.Time         `json:"updated_at"`
-	MergedAt           *time.Time        `json:"merged_at,omitempty"`
-	Stats              PullRequestStats  `json:"stats"`
-	Files              []File            `json:"files,omitempty"`
-	Reviews            []Review          `json:"reviews,omitempty"`
-	Comments           []Comment         `json:"comments,omitempty"`
-	RawJSON            json.RawMessage   `json:"-"`
+	ID                 int64            `json:"id"`
+	Number             int              `json:"number"`
+	Title              string           `json:"title"`
+	State              string           `json:"state"`
+	Author             User             `json:"author"`
+	Assignees          []User           `json:"assignees"`
+	RequestedReviewers []User           `json:"requested_reviewers"`
+	Labels             []Label          `json:"labels"`
+	CreatedAt          time.Time        `json:"created_at"`
+	UpdatedAt          time.Time        `json:"updated_at"`
+	MergedAt           *time.Time       `json:"merged_at,omitempty"`
+	Stats              PullRequestStats `json:"stats"`
+	Files              []File           `json:"files,omitempty"`
+	Reviews            []Review         `json:"reviews,omitempty"`
+	Comments           []Comment        `json:"comments,omitempty"`
+	RawJSON            json.RawMessage  `json:"-"`
 }
 
 type PullRequestStats struct {
@@ -55,13 +55,13 @@ type File struct {
 }
 
 type Review struct {
-	ID         int64           `json:"id"`
-	PullNumber int             `json:"-"`
-	Reviewer   User            `json:"reviewer"`
-	State      string          `json:"state"`
-	SubmittedAt time.Time      `json:"submitted_at"`
-	Body       string          `json:"body,omitempty"`
-	RawJSON    json.RawMessage `json:"-"`
+	ID          int64           `json:"id"`
+	PullNumber  int             `json:"-"`
+	Reviewer    User            `json:"reviewer"`
+	State       string          `json:"state"`
+	SubmittedAt time.Time       `json:"submitted_at"`
+	Body        string          `json:"body,omitempty"`
+	RawJSON     json.RawMessage `json:"-"`
 }
 
 type Comment struct {
@@ -94,26 +94,26 @@ type CommentThread struct {
 }
 
 type ExportComment struct {
-	Type        string            `json:"type"`
-	PRNumber    int               `json:"pr_number"`
-	CommentID   int64             `json:"comment_id"`
-	Author      User              `json:"author"`
-	Body        string            `json:"body"`
-	FilePath    string            `json:"file_path,omitempty"`
-	Line        *int              `json:"line,omitempty"`
-	Side        string            `json:"side,omitempty"`
-	CodeContext *CodeContext      `json:"code_context,omitempty"`
-	Thread      *CommentThread    `json:"thread,omitempty"`
-	Reactions   map[string]int    `json:"reactions,omitempty"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   *time.Time        `json:"updated_at,omitempty"`
+	Type        string         `json:"type"`
+	PRNumber    int            `json:"pr_number"`
+	CommentID   int64          `json:"comment_id"`
+	Author      User           `json:"author"`
+	Body        string         `json:"body"`
+	FilePath    string         `json:"file_path,omitempty"`
+	Line        *int           `json:"line,omitempty"`
+	Side        string         `json:"side,omitempty"`
+	CodeContext *CodeContext   `json:"code_context,omitempty"`
+	Thread      *CommentThread `json:"thread,omitempty"`
+	Reactions   map[string]int `json:"reactions,omitempty"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   *time.Time     `json:"updated_at,omitempty"`
 }
 
 type SyncMetadata struct {
-	Repo          string    `json:"repo"`
-	LastSyncAt    time.Time `json:"last_sync_at"`
-	LastPRNumber  int       `json:"last_pr_number"`
-	TotalPRs      int       `json:"total_prs"`
-	OpenPRs       int       `json:"open_prs"`
-	ClosedPRs     int       `json:"closed_prs"`
+	Repo         string    `json:"repo"`
+	LastSyncAt   time.Time `json:"last_sync_at"`
+	LastPRNumber int       `json:"last_pr_number"`
+	TotalPRs     int       `json:"total_prs"`
+	OpenPRs      int       `json:"open_prs"`
+	ClosedPRs    int       `json:"closed_prs"`
 }

@@ -41,10 +41,10 @@ Thumbs.db
 
 # Project specific
 .pr-analyzer/
-pr-analyzer
 dist/
 *.db
 *.log
+bin/
 
 # Output files
 *.jsonl

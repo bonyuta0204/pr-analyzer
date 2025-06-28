@@ -36,23 +36,23 @@ type AnalyzeOptions struct {
 func NewService() (*Service, error) {
 	// Load configuration
 	cfg := config.DefaultConfig()
-	
+
 	// Validate GitHub token
 	if cfg.GitHub.Token == "" {
 		return nil, fmt.Errorf("GITHUB_TOKEN environment variable is required")
 	}
-	
+
 	// Create cache directory if it doesn't exist
 	if err := ensureCacheDir(cfg.Cache.Location); err != nil {
 		return nil, fmt.Errorf("creating cache directory: %w", err)
 	}
-	
+
 	// Initialize cache
 	cacheStore, err := cache.NewStore(cfg.CacheDB())
 	if err != nil {
 		return nil, fmt.Errorf("initializing cache: %w", err)
 	}
-	
+
 	return &Service{
 		config:   cfg,
 		cache:    cacheStore,
@@ -63,7 +63,7 @@ func NewService() (*Service, error) {
 func (s *Service) Analyze(ctx context.Context, opts AnalyzeOptions) error {
 	// Start analysis display
 	s.progress.StartSection("🔍", fmt.Sprintf("Analyzing %s", opts.Repo))
-	
+
 	// Initialize GitHub client for this repo
 	githubClient, err := github.NewClient(s.config, s.cache, opts.Repo)
 	if err != nil {
@@ -71,36 +71,36 @@ func (s *Service) Analyze(ctx context.Context, opts AnalyzeOptions) error {
 		return err
 	}
 	s.github = githubClient
-	
+
 	// Check cache status
-	if err := s.showCacheStatus(opts.Repo, opts.Refetch); err != nil {
-		s.progress.ShowError(err)
-		return err
+	if cacheErr := s.showCacheStatus(opts.Repo, opts.Refetch); cacheErr != nil {
+		s.progress.ShowError(cacheErr)
+		return cacheErr
 	}
-	
+
 	// Fetch data from GitHub
-	if err := s.fetchData(ctx, opts); err != nil {
-		s.progress.ShowError(err)
-		return err
+	if fetchErr := s.fetchData(ctx, opts); fetchErr != nil {
+		s.progress.ShowError(fetchErr)
+		return fetchErr
 	}
-	
+
 	// Load data from cache
 	prs, err := s.loadDataFromCache(opts)
 	if err != nil {
 		s.progress.ShowError(err)
 		return err
 	}
-	
+
 	// Export data
 	filename, fileSize, err := s.exportData(prs, opts)
 	if err != nil {
 		s.progress.ShowError(err)
 		return err
 	}
-	
+
 	// Show success
 	s.progress.ShowSuccess(len(prs), filename, ui.FormatFileSize(fileSize))
-	
+
 	return nil
 }
 
@@ -109,19 +109,19 @@ func (s *Service) showCacheStatus(repo string, refetch bool) error {
 		s.progress.ShowCacheStatus(0, "forced refresh")
 		return nil
 	}
-	
+
 	// Get sync metadata
 	meta, err := s.cache.GetSyncMetadata(repo)
 	if err != nil {
 		s.progress.ShowCacheStatus(0, "no cache")
 		return nil
 	}
-	
+
 	if meta == nil {
 		s.progress.ShowCacheStatus(0, "no cache")
 		return nil
 	}
-	
+
 	// Calculate relative time
 	elapsed := time.Since(meta.LastSyncAt)
 	var timeStr string
@@ -132,14 +132,14 @@ func (s *Service) showCacheStatus(repo string, refetch bool) error {
 	} else {
 		timeStr = fmt.Sprintf("%d days ago", int(elapsed.Hours()/24))
 	}
-	
+
 	s.progress.ShowCacheStatus(meta.TotalPRs, timeStr)
 	return nil
 }
 
 func (s *Service) fetchData(ctx context.Context, opts AnalyzeOptions) error {
 	s.progress.StartFetching()
-	
+
 	// Parse since date if provided
 	var sinceTime time.Time
 	if opts.Since != "" {
@@ -149,33 +149,33 @@ func (s *Service) fetchData(ctx context.Context, opts AnalyzeOptions) error {
 			return fmt.Errorf("invalid date format '%s': use YYYY-MM-DD", opts.Since)
 		}
 	}
-	
+
 	// Show progress for fetching PRs
 	s.progress.ShowProgress("Recent PRs", 0, "fetching")
-	
+
 	// Fetch from GitHub
 	err := s.github.FetchPullRequests(ctx, sinceTime, opts.PRNumber)
 	if err != nil {
 		return fmt.Errorf("fetching pull requests: %w", err)
 	}
-	
+
 	// For demo purposes, show some progress updates
 	// In real implementation, this would be driven by the GitHub client
 	s.progress.StopProgress()
-	
+
 	// Simulate additional fetching steps
 	s.progress.ShowProgress("Reviews", 0, "fetching")
 	time.Sleep(100 * time.Millisecond) // Simulated work
 	s.progress.StopProgress()
-	
+
 	s.progress.ShowProgress("Comments", 0, "fetching")
 	time.Sleep(100 * time.Millisecond) // Simulated work
 	s.progress.StopProgress()
-	
+
 	s.progress.ShowProgress("Files", 0, "fetching")
 	time.Sleep(100 * time.Millisecond) // Simulated work
 	s.progress.StopProgress()
-	
+
 	return nil
 }
 
@@ -186,12 +186,12 @@ func (s *Service) loadDataFromCache(opts AnalyzeOptions) ([]*models.PullRequest,
 	if err != nil {
 		return nil, fmt.Errorf("loading PRs from cache: %w", err)
 	}
-	
+
 	// Apply limit if specified and not fetching all
 	if !opts.All && opts.Limit > 0 && len(prs) > opts.Limit {
 		prs = prs[:opts.Limit]
 	}
-	
+
 	// Load associated data for each PR
 	for _, pr := range prs {
 		// Load reviews
@@ -204,7 +204,7 @@ func (s *Service) loadDataFromCache(opts AnalyzeOptions) ([]*models.PullRequest,
 		for i, review := range reviews {
 			pr.Reviews[i] = *review
 		}
-		
+
 		// Load comments
 		comments, err := s.cache.GetComments(pr.Number)
 		if err != nil {
@@ -215,7 +215,7 @@ func (s *Service) loadDataFromCache(opts AnalyzeOptions) ([]*models.PullRequest,
 		for i, comment := range comments {
 			pr.Comments[i] = *comment
 		}
-		
+
 		// Load files
 		files, err := s.cache.GetFiles(pr.Number)
 		if err != nil {
@@ -227,7 +227,7 @@ func (s *Service) loadDataFromCache(opts AnalyzeOptions) ([]*models.PullRequest,
 			pr.Files[i] = *file
 		}
 	}
-	
+
 	return prs, nil
 }
 
@@ -243,7 +243,7 @@ func (s *Service) exportData(prs []*models.PullRequest, opts AnalyzeOptions) (st
 		}
 		filename = ui.GenerateFilename(opts.Repo, opts.Format, filenameOpts)
 	}
-	
+
 	// Create exporter
 	exportOpts := export.ExportOptions{
 		Format:       opts.Format,
@@ -251,18 +251,18 @@ func (s *Service) exportData(prs []*models.PullRequest, opts AnalyzeOptions) (st
 		IncludeDiffs: opts.IncludeDiffs,
 	}
 	exporter := export.NewExporter(exportOpts)
-	
+
 	// Export data
 	if err := exporter.Export(prs); err != nil {
 		return "", 0, fmt.Errorf("exporting data: %w", err)
 	}
-	
+
 	// Get file size
 	fileSize, err := exporter.GetFileSize()
 	if err != nil {
 		return filename, 0, fmt.Errorf("getting file size: %w", err)
 	}
-	
+
 	return filename, fileSize, nil
 }
 

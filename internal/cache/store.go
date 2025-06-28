@@ -13,7 +13,7 @@ import (
 )
 
 type Store struct {
-	db         *gorm.DB
+	db          *gorm.DB
 	botPatterns []string
 }
 
@@ -178,7 +178,7 @@ func (s *Store) GetPullRequest(number int) (*models.PullRequest, error) {
 func (s *Store) GetPullRequests(repo string, since time.Time) ([]*models.PullRequest, error) {
 	var pulls []Pull
 	query := s.db.Order("updated_at DESC")
-	
+
 	if !since.IsZero() {
 		query = query.Where("updated_at >= ?", since)
 	}

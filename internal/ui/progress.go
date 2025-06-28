@@ -8,10 +8,10 @@ import (
 )
 
 var (
-	gray   = color.New(color.FgHiBlack)
-	green  = color.New(color.FgGreen)
-	white  = color.New(color.FgWhite, color.Bold)
-	cyan   = color.New(color.FgCyan)
+	gray  = color.New(color.FgHiBlack)
+	green = color.New(color.FgGreen)
+	white = color.New(color.FgWhite, color.Bold)
+	cyan  = color.New(color.FgCyan)
 )
 
 type ProgressDisplay struct {
@@ -78,14 +78,14 @@ func (p *ProgressDisplay) ShowError(err error) {
 func (p *ProgressDisplay) startSpinner(label string, count int, unit string) {
 	p.stopSpinner = make(chan bool)
 	p.isSpinning = true
-	
+
 	go func() {
 		spinners := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 		i := 0
-		
+
 		ticker := time.NewTicker(100 * time.Millisecond)
 		defer ticker.Stop()
-		
+
 		for {
 			select {
 			case <-p.stopSpinner:

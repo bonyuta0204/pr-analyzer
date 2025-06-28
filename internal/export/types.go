@@ -8,37 +8,37 @@ import (
 
 // ExportPullRequest represents a PR optimized for export
 type ExportPullRequest struct {
-	Type               string                   `json:"type"`
-	Number             int                      `json:"number"`
-	Title              string                   `json:"title"`
-	State              string                   `json:"state"`
-	Author             models.User              `json:"author"`
-	Assignees          []models.User            `json:"assignees,omitempty"`
-	RequestedReviewers []models.User            `json:"requested_reviewers,omitempty"`
-	Labels             []models.Label           `json:"labels,omitempty"`
-	CreatedAt          time.Time                `json:"created_at"`
-	UpdatedAt          time.Time                `json:"updated_at"`
-	MergedAt           *time.Time               `json:"merged_at,omitempty"`
-	Stats              models.PullRequestStats  `json:"stats"`
-	Files              []models.File            `json:"files,omitempty"`
-	Reviews            []models.Review          `json:"reviews,omitempty"`
-	Comments           []ExportComment          `json:"comments,omitempty"`
+	Type               string                  `json:"type"`
+	Number             int                     `json:"number"`
+	Title              string                  `json:"title"`
+	State              string                  `json:"state"`
+	Author             models.User             `json:"author"`
+	Assignees          []models.User           `json:"assignees,omitempty"`
+	RequestedReviewers []models.User           `json:"requested_reviewers,omitempty"`
+	Labels             []models.Label          `json:"labels,omitempty"`
+	CreatedAt          time.Time               `json:"created_at"`
+	UpdatedAt          time.Time               `json:"updated_at"`
+	MergedAt           *time.Time              `json:"merged_at,omitempty"`
+	Stats              models.PullRequestStats `json:"stats"`
+	Files              []models.File           `json:"files,omitempty"`
+	Reviews            []models.Review         `json:"reviews,omitempty"`
+	Comments           []ExportComment         `json:"comments,omitempty"`
 }
 
 // ExportComment represents a comment optimized for export with additional context
 type ExportComment struct {
-	Type        string                `json:"type"`
-	PRNumber    int                   `json:"pr_number"`
-	CommentID   int64                 `json:"comment_id"`
-	Author      models.User           `json:"author"`
-	Body        string                `json:"body"`
-	FilePath    string                `json:"file_path,omitempty"`
-	Line        *int                  `json:"line,omitempty"`
-	Side        string                `json:"side,omitempty"`
-	CodeContext *models.CodeContext   `json:"code_context,omitempty"`
-	Reactions   map[string]int        `json:"reactions,omitempty"`
-	CreatedAt   time.Time             `json:"created_at"`
-	UpdatedAt   *time.Time            `json:"updated_at,omitempty"`
+	Type        string              `json:"type"`
+	PRNumber    int                 `json:"pr_number"`
+	CommentID   int64               `json:"comment_id"`
+	Author      models.User         `json:"author"`
+	Body        string              `json:"body"`
+	FilePath    string              `json:"file_path,omitempty"`
+	Line        *int                `json:"line,omitempty"`
+	Side        string              `json:"side,omitempty"`
+	CodeContext *models.CodeContext `json:"code_context,omitempty"`
+	Reactions   map[string]int      `json:"reactions,omitempty"`
+	CreatedAt   time.Time           `json:"created_at"`
+	UpdatedAt   *time.Time          `json:"updated_at,omitempty"`
 }
 
 // Exporter interface for different export formats

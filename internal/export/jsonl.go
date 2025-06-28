@@ -30,13 +30,13 @@ func (e *JSONLExporter) Export(prs []*models.PullRequest) error {
 	for _, pr := range prs {
 		// Create export record
 		exportPR := e.transformPR(pr)
-		
+
 		// Marshal to JSON
 		jsonData, err := json.Marshal(exportPR)
 		if err != nil {
 			return fmt.Errorf("marshaling PR %d: %w", pr.Number, err)
 		}
-		
+
 		// Write JSONL line
 		if _, err := file.Write(jsonData); err != nil {
 			return fmt.Errorf("writing PR %d: %w", pr.Number, err)
@@ -89,7 +89,7 @@ func (e *JSONLExporter) transformPR(pr *models.PullRequest) ExportPullRequest {
 
 func (e *JSONLExporter) transformComments(comments []models.Comment) []ExportComment {
 	var exportComments []ExportComment
-	
+
 	for _, comment := range comments {
 		exportComment := ExportComment{
 			Type:      e.getCommentType(comment),
@@ -106,7 +106,7 @@ func (e *JSONLExporter) transformComments(comments []models.Comment) []ExportCom
 			exportComment.FilePath = comment.Path
 			exportComment.Line = comment.Line
 			exportComment.Side = comment.Side
-			
+
 			if e.includeDiffs && comment.DiffHunk != "" {
 				exportComment.CodeContext = &models.CodeContext{
 					DiffHunk: comment.DiffHunk,

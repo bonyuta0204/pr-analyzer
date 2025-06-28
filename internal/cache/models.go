@@ -7,16 +7,16 @@ import (
 )
 
 type Pull struct {
-	ID                 int64     `gorm:"primaryKey"`
-	Number             int       `gorm:"uniqueIndex"`
+	ID                 int64 `gorm:"primaryKey"`
+	Number             int   `gorm:"uniqueIndex"`
 	Title              string
 	State              string
 	Author             string
 	AuthorType         string
 	AuthorIsBot        bool
-	Assignees          string    // JSON array
-	RequestedReviewers string    // JSON array
-	Labels             string    // JSON array
+	Assignees          string // JSON array
+	RequestedReviewers string // JSON array
+	Labels             string // JSON array
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
 	MergedAt           *time.Time
@@ -25,14 +25,14 @@ type Pull struct {
 }
 
 type Review struct {
-	ID           int64 `gorm:"primaryKey"`
-	PullNumber   int   `gorm:"index"`
-	Reviewer     string
-	ReviewerType string
+	ID            int64 `gorm:"primaryKey"`
+	PullNumber    int   `gorm:"index"`
+	Reviewer      string
+	ReviewerType  string
 	ReviewerIsBot bool
-	State        string
-	SubmittedAt  time.Time
-	RawJSON      string
+	State         string
+	SubmittedAt   time.Time
+	RawJSON       string
 }
 
 type Comment struct {

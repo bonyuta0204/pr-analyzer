@@ -10,10 +10,10 @@ import (
 )
 
 type Config struct {
-	GitHub  GitHubConfig  `yaml:"github"`
-	Cache   CacheConfig   `yaml:"cache"`
-	Export  ExportConfig  `yaml:"export"`
-	Fetch   FetchConfig   `yaml:"fetch"`
+	GitHub GitHubConfig `yaml:"github"`
+	Cache  CacheConfig  `yaml:"cache"`
+	Export ExportConfig `yaml:"export"`
+	Fetch  FetchConfig  `yaml:"fetch"`
 }
 
 type GitHubConfig struct {
@@ -22,23 +22,23 @@ type GitHubConfig struct {
 }
 
 type CacheConfig struct {
-	Location    string `yaml:"location"`
-	MaxAgeDays  int    `yaml:"max_age_days"`
+	Location   string `yaml:"location"`
+	MaxAgeDays int    `yaml:"max_age_days"`
 }
 
 type ExportConfig struct {
-	DefaultFormat   string `yaml:"default_format"`
-	IncludeRawJSON  bool   `yaml:"include_raw_json"`
+	DefaultFormat  string `yaml:"default_format"`
+	IncludeRawJSON bool   `yaml:"include_raw_json"`
 }
 
 type FetchConfig struct {
-	BatchSize        int `yaml:"batch_size"`
-	RateLimitBuffer  int `yaml:"rate_limit_buffer"`
+	BatchSize       int `yaml:"batch_size"`
+	RateLimitBuffer int `yaml:"rate_limit_buffer"`
 }
 
 func DefaultConfig() *Config {
 	homeDir, _ := os.UserHomeDir()
-	
+
 	return &Config{
 		GitHub: GitHubConfig{
 			Token:  os.Getenv("GITHUB_TOKEN"),
@@ -61,7 +61,7 @@ func DefaultConfig() *Config {
 
 func Load(path string) (*Config, error) {
 	config := DefaultConfig()
-	
+
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -69,16 +69,16 @@ func Load(path string) (*Config, error) {
 		}
 		return nil, fmt.Errorf("reading config file: %w", err)
 	}
-	
+
 	if err := yaml.Unmarshal(data, config); err != nil {
 		return nil, fmt.Errorf("parsing config file: %w", err)
 	}
-	
+
 	// Override with environment variables if set
 	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
 		config.GitHub.Token = token
 	}
-	
+
 	return config, nil
 }
 
@@ -87,16 +87,16 @@ func (c *Config) Save(path string) error {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return fmt.Errorf("creating config directory: %w", err)
 	}
-	
+
 	data, err := yaml.Marshal(c)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	
-	if err := os.WriteFile(path, data, 0644); err != nil {
+
+	if err := os.WriteFile(path, data, 0600); err != nil {
 		return fmt.Errorf("writing config file: %w", err)
 	}
-	
+
 	return nil
 }
 
