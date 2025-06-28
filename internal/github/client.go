@@ -80,7 +80,7 @@ func (c *Client) FetchPullRequests(ctx context.Context, since time.Time, prNumbe
 			return c.handleError(err, resp.Response)
 		}
 
-		for _, pr := range prs {
+		for i, pr := range prs {
 			// Skip if PR hasn't been updated since the given time
 			if !since.IsZero() && pr.UpdatedAt.Before(since) {
 				// Since results are sorted by updated desc, we can stop here
@@ -95,6 +95,11 @@ func (c *Client) FetchPullRequests(ctx context.Context, since time.Time, prNumbe
 			// Fetch additional data for each PR
 			if err := c.fetchPRDetails(ctx, *pr.Number); err != nil {
 				return fmt.Errorf("fetching details for PR %d: %w", *pr.Number, err)
+			}
+
+			// Simple progress feedback - print to show we're making progress
+			if (i+1)%5 == 0 || i == len(prs)-1 {
+				fmt.Printf("\r│  ├─ Recent PRs................ ⠋ %d fetched", i+1)
 			}
 		}
 
