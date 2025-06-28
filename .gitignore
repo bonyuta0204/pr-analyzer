@@ -28,5 +28,19 @@ go.work.sum
 .env
 
 # Editor/IDE
-# .idea/
-# .vscode/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Project specific
+.pr-analyzer/
+pr-analyzer
+dist/
+*.db
+*.log
