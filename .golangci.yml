@@ -48,16 +48,19 @@ linters-settings:
   gocyclo:
     min-complexity: 15
   mnd:
-    settings:
-      mnd:
-        checks: argument,case,condition,operation,return,assign
+    checks:
+      - argument
+      - case
+      - condition
+      - operation
+      - return
+      - assign
   govet:
     enable:
       - shadow
   lll:
     line-length: 140
   nolintlint:
-    allow-leading-space: true
     allow-unused: false
     require-explanation: false
     require-specific: false
