@@ -154,7 +154,7 @@ func (s *Service) fetchData(ctx context.Context, opts AnalyzeOptions) error {
 	s.progress.ShowProgress("Recent PRs", 0, "fetching")
 
 	// Fetch from GitHub
-	err := s.github.FetchPullRequests(ctx, sinceTime, opts.PRNumber)
+	err := s.github.FetchPullRequests(ctx, sinceTime, opts.PRNumber, opts.Limit)
 	if err != nil {
 		return fmt.Errorf("fetching pull requests: %w", err)
 	}
