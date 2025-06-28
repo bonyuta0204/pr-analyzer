@@ -16,7 +16,7 @@ func (c *Client) FetchReviews(ctx context.Context, prNumber int) error {
 	for {
 		reviews, resp, err := c.client.PullRequests.ListReviews(ctx, c.owner, c.repo, prNumber, opts)
 		if err != nil {
-			return c.handleError(err, resp)
+			return c.handleError(err, resp.Response)
 		}
 
 		for _, review := range reviews {
@@ -41,7 +41,7 @@ func (c *Client) convertReview(review *github.PullRequestReview, prNumber int) *
 		PullNumber:  prNumber,
 		State:       review.GetState(),
 		Body:        review.GetBody(),
-		SubmittedAt: review.GetSubmittedAt(),
+		SubmittedAt: review.GetSubmittedAt().Time,
 	}
 
 	if review.User != nil {

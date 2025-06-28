@@ -77,7 +77,7 @@ func (c *Client) FetchPullRequests(ctx context.Context, since time.Time, prNumbe
 	for {
 		prs, resp, err := c.client.PullRequests.List(ctx, c.owner, c.repo, opts)
 		if err != nil {
-			return c.handleError(err, resp)
+			return c.handleError(err, resp.Response)
 		}
 
 		for _, pr := range prs {
@@ -115,7 +115,7 @@ func (c *Client) FetchPullRequests(ctx context.Context, since time.Time, prNumbe
 func (c *Client) fetchSinglePR(ctx context.Context, number int) error {
 	pr, resp, err := c.client.PullRequests.Get(ctx, c.owner, c.repo, number)
 	if err != nil {
-		return c.handleError(err, resp)
+		return c.handleError(err, resp.Response)
 	}
 
 	pullRequest := c.convertPullRequest(pr)
@@ -151,8 +151,8 @@ func (c *Client) convertPullRequest(pr *github.PullRequest) *models.PullRequest 
 		Number:    pr.GetNumber(),
 		Title:     pr.GetTitle(),
 		State:     pr.GetState(),
-		CreatedAt: pr.GetCreatedAt(),
-		UpdatedAt: pr.GetUpdatedAt(),
+		CreatedAt: pr.GetCreatedAt().Time,
+		UpdatedAt: pr.GetUpdatedAt().Time,
 		Stats: models.PullRequestStats{
 			Additions:      pr.GetAdditions(),
 			Deletions:      pr.GetDeletions(),
