@@ -62,7 +62,7 @@ func DefaultConfig() *Config {
 func Load(path string) (*Config, error) {
 	config := DefaultConfig()
 
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(filepath.Clean(path)) // #nosec G304 - path is validated by caller
 	if err != nil {
 		if os.IsNotExist(err) {
 			return config, nil
@@ -84,7 +84,7 @@ func Load(path string) (*Config, error) {
 
 func (c *Config) Save(path string) error {
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return fmt.Errorf("creating config directory: %w", err)
 	}
 

@@ -274,5 +274,5 @@ func (s *Service) Close() error {
 }
 
 func ensureCacheDir(dir string) error {
-	return os.MkdirAll(dir, 0755)
+	return os.MkdirAll(dir, 0750)
 }
