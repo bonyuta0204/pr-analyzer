@@ -159,21 +159,17 @@ func (s *Service) fetchData(ctx context.Context, opts AnalyzeOptions) error {
 		return fmt.Errorf("fetching pull requests: %w", err)
 	}
 
-	// For demo purposes, show some progress updates
-	// In real implementation, this would be driven by the GitHub client
 	s.progress.StopProgress()
 
-	// Simulate additional fetching steps
+	// The actual fetching of reviews, comments, and files happens inside FetchPullRequests
+	// So we just show completed status here
 	s.progress.ShowProgress("Reviews", 0, "fetching")
-	time.Sleep(100 * time.Millisecond) // Simulated work
 	s.progress.StopProgress()
 
 	s.progress.ShowProgress("Comments", 0, "fetching")
-	time.Sleep(100 * time.Millisecond) // Simulated work
 	s.progress.StopProgress()
 
 	s.progress.ShowProgress("Files", 0, "fetching")
-	time.Sleep(100 * time.Millisecond) // Simulated work
 	s.progress.StopProgress()
 
 	return nil

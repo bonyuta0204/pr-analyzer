@@ -103,11 +103,6 @@ func (c *Client) FetchPullRequests(ctx context.Context, since time.Time, prNumbe
 			}
 
 			totalFetched++
-			
-			// Simple progress feedback - print to show we're making progress
-			if totalFetched%5 == 0 || totalFetched == limit {
-				fmt.Printf("\r│  ├─ Recent PRs................ ⠋ %d fetched", totalFetched)
-			}
 		}
 
 		if resp.NextPage == 0 {
@@ -139,30 +134,20 @@ func (c *Client) fetchSinglePR(ctx context.Context, number int) error {
 }
 
 func (c *Client) fetchPRDetails(ctx context.Context, number int) error {
-	// Debug: log PR details fetching
-	fmt.Printf("\n│  │  └─ PR #%d: ", number)
-	
 	// Fetch reviews
-	fmt.Printf("reviews...")
-	start := time.Now()
 	if err := c.FetchReviews(ctx, number); err != nil {
 		return fmt.Errorf("fetching reviews: %w", err)
 	}
-	fmt.Printf("✓ ")
 	
 	// Fetch comments
-	fmt.Printf("comments...")
 	if err := c.FetchComments(ctx, number); err != nil {
 		return fmt.Errorf("fetching comments: %w", err)
 	}
-	fmt.Printf("✓ ")
 	
 	// Fetch files
-	fmt.Printf("files...")
 	if err := c.FetchFiles(ctx, number); err != nil {
 		return fmt.Errorf("fetching files: %w", err)
 	}
-	fmt.Printf("✓ (%.1fs)\n", time.Since(start).Seconds())
 
 	return nil
 }
