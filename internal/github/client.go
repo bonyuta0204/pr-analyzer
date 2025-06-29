@@ -60,7 +60,7 @@ func (c *Client) GetRepository() string {
 	return c.owner + "/" + c.repo
 }
 
-func (c *Client) FetchPullRequests(ctx context.Context, since time.Time, prNumber int) error {
+func (c *Client) FetchPullRequests(ctx context.Context, since time.Time, prNumber int, limit int) error {
 	if prNumber > 0 {
 		return c.fetchSinglePR(ctx, prNumber)
 	}
@@ -74,13 +74,18 @@ func (c *Client) FetchPullRequests(ctx context.Context, since time.Time, prNumbe
 		},
 	}
 
+	totalFetched := 0
 	for {
 		prs, resp, err := c.client.PullRequests.List(ctx, c.owner, c.repo, opts)
 		if err != nil {
 			return c.handleError(err, resp.Response)
 		}
 
-		for i, pr := range prs {
+		for _, pr := range prs {
+			// Check if we've reached the limit
+			if limit > 0 && totalFetched >= limit {
+				return nil
+			}
 			// Skip if PR hasn't been updated since the given time
 			if !since.IsZero() && pr.UpdatedAt.Before(since) {
 				// Since results are sorted by updated desc, we can stop here
@@ -97,10 +102,7 @@ func (c *Client) FetchPullRequests(ctx context.Context, since time.Time, prNumbe
 				return fmt.Errorf("fetching details for PR %d: %w", *pr.Number, err)
 			}
 
-			// Simple progress feedback - print to show we're making progress
-			if (i+1)%5 == 0 || i == len(prs)-1 {
-				fmt.Printf("\r│  ├─ Recent PRs................ ⠋ %d fetched", i+1)
-			}
+			totalFetched++
 		}
 
 		if resp.NextPage == 0 {
