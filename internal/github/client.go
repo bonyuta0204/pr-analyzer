@@ -138,12 +138,12 @@ func (c *Client) fetchPRDetails(ctx context.Context, number int) error {
 	if err := c.FetchReviews(ctx, number); err != nil {
 		return fmt.Errorf("fetching reviews: %w", err)
 	}
-	
+
 	// Fetch comments
 	if err := c.FetchComments(ctx, number); err != nil {
 		return fmt.Errorf("fetching comments: %w", err)
 	}
-	
+
 	// Fetch files
 	if err := c.FetchFiles(ctx, number); err != nil {
 		return fmt.Errorf("fetching files: %w", err)
